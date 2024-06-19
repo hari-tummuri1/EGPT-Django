@@ -7,7 +7,6 @@ ALLOWED_HOSTS = [os.environ['WEBSITE_HOSTNAME']]
 CSRF_TRUSTED_ORIGINS = ['https://'+os.environ['WEBSITE_HOSTNAME'], 'http://'+os.environ['WEBSITE_HOSTNAME']]
 DEBUG = False
 
-
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',  
     'django.middleware.common.CommonMiddleware',
