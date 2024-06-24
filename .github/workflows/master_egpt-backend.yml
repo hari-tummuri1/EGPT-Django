@@ -66,4 +66,4 @@ jobs:
         with:
           app-name: 'egpt-backend'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_603A645F347340F7BD8808C39897016C }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D487198F546E4A828345AECA02218766 }}
