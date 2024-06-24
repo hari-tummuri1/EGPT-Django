@@ -58,5 +58,6 @@ urlpatterns = [
     path('llm/delete/<int:id>', views.deleteLLM),
     path('llm/contentFilters/add', views.addContentFilter),
     path('llm/contentFilter/update/<int:id>', views.updateContentFilter),
-    path('llm/contentFilter/<int:id>', views.getContentFilter)
+    path('llm/contentFilter/<int:id>', views.getContentFilter),
+    path('hello/', views.hello)
 ]

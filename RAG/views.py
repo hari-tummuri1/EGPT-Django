@@ -1119,6 +1119,10 @@ def dummyApiCall(request):
     deAnonymised_answer = deAnonymize(response.choices[0].message.content)
     return Response({'answer' : deAnonymised_answer})
 
+@api_view(['GET'])
+def hello(request):
+    return Response({'Hello world!!!'}, status=status.HTTP_200_OK)
+
 
      
          
