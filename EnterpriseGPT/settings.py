@@ -105,34 +105,34 @@ WSGI_APPLICATION = 'EnterpriseGPT.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# DATABASES = {
-
-#     # 'default': {
-#     #     'ENGINE': 'django.db.backends.sqlite3',
-#     #     'NAME': BASE_DIR / 'db.sqlite3',
-#     # }
-#     'default': {  
-#         'ENGINE': 'django.db.backends.mysql',  
-#         'NAME': 'enterprisegpt',  
-#         'USER': 'egptadmin',  
-#         'PASSWORD': 'Admin@1234',  
-#         'HOST': 'egpt.mysql.database.azure.com',  
-#         'PORT': '3306',
-#         # 'OPTIONS': {  
-#         #     'ssl': {  
-#         #         'ca': 'BaltimoreCyberTrustRoot.crt.pem',  
-#         #     },  
-#         # },
-#     } 
-# }
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'enterprisegpt',
-        'USER':'root',
-        'PASSWORD':'test'
-    }
+
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
+    'default': {  
+        'ENGINE': 'django.db.backends.mysql',  
+        'NAME': 'enterprisegpt',  
+        'USER': 'egptadmin',  
+        'PASSWORD': 'Admin@1234',  
+        'HOST': 'egpt.mysql.database.azure.com',  
+        'PORT': '3306',
+        # 'OPTIONS': {  
+        #     'ssl': {  
+        #         'ca': 'BaltimoreCyberTrustRoot.crt.pem',  
+        #     },  
+        # },
+    } 
 }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'enterprisegpt',
+#         'USER':'root',
+#         'PASSWORD':'test'
+#     }
+# }
 
 
 # Password validation
