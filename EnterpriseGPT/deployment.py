@@ -27,6 +27,7 @@ user = os.environ['AZURE_MYSQL_USER']
 password = os.environ['AZURE_MYSQL_PASSWORD']
 host = os.environ['AZURE_MYSQL_HOST']
 
+print(str(name))
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',  
