@@ -57,6 +57,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',  
     'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -118,7 +119,7 @@ DATABASES = {
         'PASSWORD': 'Admin@1234',  
         'HOST': 'egpt.mysql.database.azure.com',  
         'PORT': '3306',
-        # 'OPTIONS': {  
+        # 'OPTIONS': {
         #     'ssl': {  
         #         'ca': 'BaltimoreCyberTrustRoot.crt.pem',  
         #     },  

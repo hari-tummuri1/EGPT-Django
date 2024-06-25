@@ -22,19 +22,19 @@ MIDDLEWARE = [
 STATICFILES_STORAGE = 'Whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-name = os.environ['AZURE_MYSQL_NAME']
-user = os.environ['AZURE_MYSQL_USER']
-password = os.environ['AZURE_MYSQL_PASSWORD']
-host = os.environ['AZURE_MYSQL_HOST']
+# name = os.environ['AZURE_MYSQL_NAME']
+# user = os.environ['AZURE_MYSQL_USER']
+# password = os.environ['AZURE_MYSQL_PASSWORD']
+# host = os.environ['AZURE_MYSQL_HOST']
+# print(str(name))
 
-print(str(name))
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',  
-        'NAME': name,  
-        'USER': user,  
-        'PASSWORD': password,  
-        'HOST': host,  
+        'NAME': 'enterprisegpt',  
+        'USER': 'egptadmin',  
+        'PASSWORD': 'Admin@1234',  
+        'HOST': 'egpt.mysql.database.azure.com',  
         'PORT': '3306'
     }
 }

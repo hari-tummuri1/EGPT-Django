@@ -103,3 +103,4 @@ virtualenv==20.24.6
 wasabi==1.1.2
 weasel==0.3.4
 yarl==1.9.4
+whitenoise
