@@ -8,7 +8,7 @@ from .models import EnterpriseDocuments,Users, Conversation, Message, UserDocume
 from django.db.models import Count  
 from django.db.models.functions import TruncDate  
 from collections import defaultdict 
-from .anonymization import anonymize, deAnonymize
+# from .anonymization import anonymize, deAnonymize
 from django.http import StreamingHttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings  
