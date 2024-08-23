@@ -268,7 +268,7 @@ def llmCall(query,conv_id):
     # query = {"role":"user", "content": query}
 
     # Gemini Configuration
-    genai.configure(api_key="AIzaSyD4uTLmHEkULU3nlt81JYT44X99H0wkim0")
+    genai.configure(api_key="Your API key")
 
     generation_config = {
         "temperature" : 1,
