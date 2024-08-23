@@ -124,6 +124,9 @@ DATABASES = {
         #         'ca': 'BaltimoreCyberTrustRoot.crt.pem',  
         #     },  
         # },
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+        },
     } 
 }
 # DATABASES = {
