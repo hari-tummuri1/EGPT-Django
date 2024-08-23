@@ -193,7 +193,7 @@ def process_query(query, conv_id, index):
 
     #initializing LLMs 
 
-    llm = AzureChatOpenAI(deployment_name="GPT4", openai_api_key=OPENAI_API_KEY, openai_api_base=OPENAI_API_BASE, openai_api_version=OPENAI_API_VERSION,streaming=True, callbacks=[StreamingStdOutCallbackHandler()])
+    llm = AzureChatOpenAI(deployment_name="GPT4ContentFilter", openai_api_key=OPENAI_API_KEY, openai_api_base=OPENAI_API_BASE, openai_api_version=OPENAI_API_VERSION,streaming=True, callbacks=[StreamingStdOutCallbackHandler()])
     # embeddings = AzureOpenAIEmbeddings(azure_deployment="text-embedding-ada-002", chunk_size=500, openai_api_key=OPENAI_API_KEY, openai_api_base=OPENAI_API_BASE, openai_api_version=OPENAI_API_VERSION)
     embeddings = AzureOpenAIEmbeddings(
         azure_deployment="text-embedding-ada-002",
@@ -243,7 +243,8 @@ def find_substring(main_string, substring):
 
 def llmCall(query,conv_id):
     import json
-    import requests  
+    import requests 
+    import google.generativeai as genai  
 
     try:  
         person = SystemPrompt.objects.get(pk=1) 
@@ -251,8 +252,7 @@ def llmCall(query,conv_id):
         return Response(status=status.HTTP_404_NOT_FOUND)
     
     serializer = SystemPromptSerializer(person)
-    system_prompt = serializer.data["prompt"] + "If the user question contains PII (Personal Identifiable Information) or confidential information like salary and financial related, then dont process the question instead say 'Sorry! this contains Personal Identifiable Information, i cant process this information' and give what is that Personal Identifiable Information. If the users asks for their previous question, if their previous questions contains PII (Personal Identifiable Information) or confidential information like salary and financial related then give the response saying Sorry! this contains Personal Identifiable Information, i cant process this information' and give what is that Personal Identifiable Information."
-
+    system_prompt = serializer.data["prompt"] + "I will give the knowledge about modules present in mywipro with definition, if the employee asks anything related to this modules you please understand the things and assist with the user query. Below are the modules Frequently used modules: myBenefits App for Wipro Benefits Plan (WBP), Superannuation, School Fee, Australia Flex, UK Living Allowance, Furniture & Equipment (F&E) and country specific benefits. myCareer My Career - Performance NXT is the performance management process at Wipro and enables you to set inspiring goals as well as receive meaningful feedback. myData My Data is used to update your profile with contact info and your bank account details. Check your supervisor and HR partner and access your Personal Staffing Page (PSP). myFinancials Access finance, compensation, Salary, Pay slip, Loan & Advances, Survivor benefits, Leave encashment, PF & Pension, Income Tax declarations, Form 16, FormW4-US employees, Onsite statutory Reports & Variable pay. My Learning MyLearning application enables employees to view the competency assessment scores and details. Employees covered in MySkill-Z can map and acquire high demand skills as per their practice, to fuel their career growth. myMedical Claim Medical Assistance Program is aimed towards providing employees and their immediate family (spouse & children) reimbursement claims towards various medical expenses. myRequest This is a one stop shop for raising requests like Guest Pass, Gate Pass, Bus Pass, Id Card etc. You can also track and modify your requests from here. mySpace Book your seat in Wipro locations across India. Seamlessly navigate floor layouts and reserve workstations/half cabins in your ODC or hot-desking space. myTime Mark your attendance, apply for earned time-off/leaves, and submit your overtime and compensatory off details. View your shift schedule. myTransport My Transport is an application for Wipro employees to book roster (Regular, Ad-hoc, Shuttle and special cab). myTravel Book your business travel and accommodation. myDelegationThis application is used to by supervisor to delegate certain tasks and approvals to an employee for e.g., approval of cash claims, travel requests, E-CAR requests, etc. to actionize on behalf of your supervisor. Ariba This application provides a collaborative solution for Wipro Procurement, Strategic Sourcing, Contract Management & Supplier Management. Code of Business Conduct (COBC) Code of Business Conduct(COBC) is the guiding spirit for doing business ethically within the Company. It is not only about compliance but also about meeting our commercial commitments in a legal and ethical manner. Expense Claims Expenses incurred by employees under wipro policy can raise a claim to reimburse. Personal Staffing Page (PSP) This platform gives view of the employee experience details, billability/billing trend, leave, Key contacts (HR,WMG, Manager), Project allocations, tenure information, staff Category and Skill/Role Catalog view. WiServe WiServe is our service management platform to Raise service requests and report incidents. WiLearn Our in-house learning and training platform. Access 9,000+ courses, 22,000+ e-learning modules, and comprehensive learning pathways. Rest of the modules: 360° Survey - Intranet The 360° Survey is a leadership development tool designed to provide holistic feedback to a leader. The survey includes a leader’s manager, co-workers, team members and internal customers who will provide feedback. A3 Reporting Centre A3 is the one source of information for all of Wipro, allowing you to Analyse, to Anticipate and to Act with the confidence of clear and relevant data and insights in real time. Action Tracker Action Tracker is the repository capturing the function-wise activities. It enables tracking of key actions with a view to report progress on a regular basis and also trigger reminders prior to closure date. BGV Master Console Back ground verification configuration for new hire Org -DOP. Candid Voice Candid Voice application provides a platform to raise proactive alerts on potential issues and provide fair feedbacks on projects thus helping smooth execution of projects, positive experience and successful outcomes. Certificate of Coverage-Admin The admin module for Certificate of Coverage (COC) required by an Indian employee travelling overseas to claim exemption from the host(Treaty Signed Country) country's social security. Certificate of Coverage-Employee The EPFO has launched an online facility to apply for a Certificate of Coverage (COC) required by an Indian employee travelling overseas to claim exemption from the host(Treaty Signed Country) country's social security. Claims and Benefit (DOP India) Used to upload and process Incentive for extra productivity and also raise a team celebration claim incurred by DOP INDIA employees. Compliance admin this application is used for generating COBC reports Conflict of Interest This application is designed for employees to identify and disclose any such situation which may be perceived to be an actual or potential conflict with the interests of the company. Cool OffThis application is used for defining competitor account with a cool off clause period of 6 months. The key resources tagged to an account can be allocated to a competitor account based on exception approval. Corporate Internal Audit Portal Audit portal captures the Audit-wise activities in line with ISO 9001. It documents the scope, approach, risk and findings of the Audit steps undertaken. It also track evidence, implementation of agreed Action plan. Customer Supplied Materials (CSM) CSM is one single application that takes care of tracking & accounting of Client Supplied Material [CSM]. User can raise Indent for CSM shipments. Digi-Q digi-q is a strategic and transformational initiative of the Quality function. It is an Enterprise Application with integrated environment for end to end project lifecycle management and focus on Project Governance. DMTS DMTS(Distinguished Member of Technical Staff) is a cadre of expert technologists who have the proficiency and thought leadership to shape Wipro’s technology roadmap and who aspire to work on cutting edge technology. DTS IND Disciplanary tracking system for raising DTS, creating abort/closure of DTS for absconding cases. EBC Reservations Application for EBC rooms booking management for client visits - FMG operations. ECOE Estimation portal for calculating Resource loading sheet(RLS) for Opportunities. Embark Employee Login Embark is an organization-wide application integrated with iVerify to enhance employee experience. Fill this form with accurate and complete information, to help us conduct your verification. Embark – Manager/Onboarding Team Allows the onboarding SPOCs to perform actions like Verify joining mandates, Activate the Employee id for new joinees. Employee movement This application can be used for raising relocation, transfer, supervisor change, review of movement requests by manager and raising support tagging/ de-tagging request. Employee Referral The Employee Referral Portal also called as Wiplinks is a platform that allows you to refer potential candidates who aspire to kickstart their professional journey at Wipro. You can also track and earn rewards. Employee Separation An integrated platform that enables employees to render their resignation and track settlement progress; HR to accept/reverse resignations; admin to view settlement status; clearing agents to update due clearance. Enterprise SearchA search engine to look for Case Studies, Best Practices, etc. available in the Enterprise Knowledge Portal Forecast Solution Standardized forecasting process for revenue and resource. Gift Tracker This Portal is used to disclose the gifts that are received by employees which exceeds the acceptable limit of the value of the gift . Global Delivery Catalogue Global Delivery Catalogue (GDC) is an application which brings information together with access to updated Geo inputs thus helping Wiproite in taking quick sales / delivery related decisions. GMG This application is used by employees to create and process Visa request for their international travel. Information security mandatory awareness trainings Protect Wipro’s sensitive data and digital assets with Infosec Awareness trainings for compliance, risk awareness, and incident reporting. Internal Job Portal (IJP) This application allows employees to keep their profile updated and apply for matching internal open positions. IP Gateway IP Gateway is Wipro's online service for all IPR clearances covering Wipro Ownership verification, Infringement Risk Analysis, Open Source Clearance, Security Assessment and Quality Checks. KYC Vault KYC Vault is the repository to store the documents of banking authorized signatories. It enables tracking of requests for KYC verification of signatory with an approval workflow to avoid any misuse of KYC documents. Lead Smart For enabling new requisition for internal talent movement to Lead Smart Level 1 - first line manager, Lead Smart Level 2 - middle line manager roles. - DOP. Lean Project Management Portal Lean project management portal is used for managing Lean projects through its complete lifecycle. Letters This application helps employees to generate letters for Business Visa, Reference, Employee verification and Address Proofs. Liquidity Damages (LD) Fresh Identification Portal LD Fresh Identification Portal enables Operations team to update fresh identification of LD against the invoices through an approval process. Mentoring NetworksMentoring Networks serves as a technology-enabled marketplace of opportunities for mentors and mentees at Wipro to connect, learn, create bonds and grow. Merit Salary Increase (MSI) The application is used to Generate and release merit salary letter to employee. myEmployment My Employment is an application for raising employee confirmation, L2 confirmation, STAR - identify talent at risk in DOP. myKnowledge A one stop solution for all information about Wipro as well as selected premium knowledge artifacts. myPolicies My Policy is your handbook for country specific and global policies of Wipro bifurcated under various categories such as My Career, My Financials, My Day at Work, My Travel and My Information etc. myStatus This application help users to view the status of various request raised by an Employee. myVoice DP my Voice DP is a forum where IRMC,DP related calls will be raised by an employee and these concerns/calls are investigated, addressed by concerned admin / SPOCS of DP Team. myWorklist It is a system used by employees to manage worklist, Approve/Reject requests which is pending for action. This application also caters to Employee Task and gives a view and status of Employee's Requests. Ombuds Process Portal for raising grievance relating to workplace, breach of COBCE guidelines and policies. PIAM PIAM application is used to effectively monitor employee swipe details. Global Security Group use PIAM tool to manage controllers, map doors and schedule reports. Pragati Employee having any improvement idea can be submitted in this portal, Pragati certificate will be generated when the request is approved. An Integrated application for WT and DOP. Prevention of Sexual Harassment (PSH) Wipro’s Global Policy on Prevention of Sexual Harassment at workplace provides a robust framework of confidentiality, assurance, and protection to all employees, irrespective of gender. Promotion Tool Nomination for employee progression and Manger/HR workflow is done using this application. QAS QAS is a tool to perform auditing for HRSS and IMG. Qualtrics Qualtrics is a employee engagement survey platform.Receivable Management System (RMS) Receivable Management system is portal to manage Collection, CNR, commit amount and not commit amounts against invoices. Sequentra Real Estate Management app that allow users to control,manage & unlock the data within their organization. Sequentra provides highest quality analysis tools to inform decision-making & build competitive advantages. Shift and Roster Bulk roster upload for wipro employees to book a Cab. Spazio-Visual Used to manage work location and seat management. Stay Connected Stay Connected is an application for Wipro employees who are enrolled in Extended Bench Leave Program(EBLP) apprising them about the release letter. Step Portal for step/ progression for IJP, IPP postings. Talent Marketplace Talent Marketplace is a platform for talent in Wipro to explore internal opportunities to further their career aspirations. Talent Skilling Talent Skilling portal enables employees to access the learning offerings from Talent Skilling team. These cover Training programs for Technology skills, Project / Delivery / Program Management areas. Talent Supply Chain (TSC) Workbench This application has modules - Integrated Fulfillment Portal, MTE – Workflow and Bench Management used by IFP, WMG heads and PM/DM for internal fulfillment, act on JC requests and unlock the employee opportunity level. Total Rewards Total Rewards is gateway to your compensation, benefits and beneficiary declaration including medical insurance, retirals, wellbeing, ESI, leaves, WBP, Furniture & Equipment(F&E), MAS, Annual Health Check-up, Car Lease. Veloci-Q This is a quality Management system and document storage repository. Visa Declaration A platform for work visa holders currently at onsite, to declare visa related questionnaires adhering to compliance mandates. Winners' CircleWinners’ Circle is Wipro’s Rewards and Recognition platform. It can be used to reward (monetary) and send appreciations (non-monetary). Points earned from all awards can be accessed here and redeemed. Wipro Cares Wipro Cares is an initiative by the Wipro employees to contribute in the areas of social welfare. Employees can also make contributions as per their convenience to Wipro Cares. Wipro One Wipro One covers the wide gamut of sub processes within the Order to Cash process. It includes Project structure creation, Resource planning, Staffing, Invoicing, etc. Work Permit Planning A platform where Delivery Managers (DM), WMGs and Account Delivery Heads (ADH) perform account-wise planning, quota distribution in order to nominate eligible candidates for H-1B Cap program.If the user question contains PII (Personal Identifiable Information) or confidential information like salary and financial related, then dont process the question instead say 'Sorry! this contains Personal Identifiable Information, i cant process this information' and give what is that Personal Identifiable Information(Do not repeat the PII information, just tell what type of info it is). If the users asks for their previous question, if their previous questions contains PII (Personal Identifiable Information) or confidential information like salary and financial related then give the response saying Sorry! this contains Personal Identifiable Information, i cant process this information' and give what is that Personal Identifiable Information. Give response only in text, don't give response in special characters"
     try:
         temperature = LLMTemperature.objects.get(pk=1)
     except LLMTemperature.DoesNotExist:
@@ -265,39 +265,55 @@ def llmCall(query,conv_id):
     conversations = Message.objects.filter(conv_id = conv_id)
     messageSerializer = MessageSerializer(conversations, many=True)
     system_prompt = {"role":"system","content":system_prompt}
-    query = {"role":"user", "content": query}
-    context = [{"role": item["msg_type"], "content": item["msg"]} for item in messageSerializer.data[-6:]] 
-    context.insert(0, system_prompt)
-    context.append(query) 
-    # testdata = {
-    #     "messages": [  
-    #             {"role":"system","content":system_prompt},  
-    #             str(context),  
-    #             {"role":"assistant","content":"Hello! How can I assist you today?"}  ,
-    #         ]
-    # }
-    # print("testdata" + str(testdata))
-    print("Context : "+str(context))
-    # print("api key :"+str(settings.OPENAI_API_KEY))
-    url = "https://dwspoc.openai.azure.com/openai/deployments/GPT4/chat/completions?api-version=2024-02-15-preview"  
-    headers = {  
-        "Content-Type": "application/json",  
-        "api-key": settings.OPENAI_API_KEY
+    # query = {"role":"user", "content": query}
+
+    # Gemini Configuration
+    genai.configure(api_key="AIzaSyD4uTLmHEkULU3nlt81JYT44X99H0wkim0")
+
+    generation_config = {
+        "temperature" : 1,
+        "top_p":0.95,
+        "top_k": 64,
+        "max_output_tokens":8192,
+        "response_mime_type":"text/plain",
     }
 
-    data = {  
-            "messages": context,  
-            "max_tokens": 800,  
-            "temperature": temperature,  
-            "frequency_penalty": 0,  
-            "presence_penalty": 0,  
-            "top_p": 0.95,  
-            "stop": None  
-        }
+    model = genai.GenerativeModel(
+        model_name = "gemini-1.5-flash",
+        generation_config=generation_config,
+    )
+    context = [{"role": "model" if item["msg_type"]=='assitant' else "user", "parts": [item["msg"]]} for item in messageSerializer.data[-6:]] 
 
-    response = requests.post(url, headers=headers, data=json.dumps(data))
-    print("this is the llm response : "+str(response.json))
-    return response.json()['choices'][0]['message']['content']
+    chat_session = model.start_chat( history=context )
+    response = chat_session.send_message(query)
+    return response.text
+
+    # Openai Configuration
+
+    # context = [{"role": item["msg_type"], "content": item["msg"]} for item in messageSerializer.data[-6:]] 
+    # context.insert(0, system_prompt)
+    # context.append(query) 
+
+    # print("Context : "+str(context))
+    # url = "https://dwspoc.openai.azure.com/openai/deployments/GPT4ContentFilter/chat/completions?api-version=2024-02-15-preview"  
+    # headers = {  
+    #     "Content-Type": "application/json",  
+    #     "api-key": settings.OPENAI_API_KEY
+    # }
+
+    # data = {  
+    #         "messages": context,  
+    #         "max_tokens": 800,  
+    #         "temperature": temperature,  
+    #         "frequency_penalty": 0,  
+    #         "presence_penalty": 0,  
+    #         "top_p": 0.95,  
+    #         "stop": None  
+    #     }
+
+    # response = requests.post(url, headers=headers, data=json.dumps(data))
+    # print("this is the llm response : "+str(response.json))
+    # return response.json()['choices'][0]['message']['content']
 def replace_words(sentence):  
     global response_from
     # words = sentence.split()  
