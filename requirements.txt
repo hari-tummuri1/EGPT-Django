@@ -125,3 +125,5 @@ mysqlclient
 python-dotenv
 google-generativeai
 whitenoise
+langchain_chroma
+langchain_google_genai
