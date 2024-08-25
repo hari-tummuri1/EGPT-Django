@@ -21,6 +21,7 @@ load_dotenv(find_dotenv())
 # Get the API key  
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY') 
 AZURE_COGNITIVE_SEARCH_API_KEY = os.getenv('AZURE_COGNITIVE_SEARCH_API_KEY')
+GOOGLE_API_KEY=os.getenv('GOOGLE_API_KEY')
 # print(OPENAI_API_KEY)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
