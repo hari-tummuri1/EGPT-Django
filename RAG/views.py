@@ -25,8 +25,6 @@ from langchain_community.embeddings import AzureOpenAIEmbeddings
 from langchain_community.vectorstores import AzureSearch
 # from langchain.document_loaders import DirectoryLoader
 from langchain_community.document_loaders import DirectoryLoader
-# from langchain.document_loaders import PyPDFLoader
-from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import TokenTextSplitter
 from langchain.chains import ConversationalRetrievalChain
 from langchain.prompts import PromptTemplate
@@ -34,6 +32,15 @@ from django.core.files.storage import FileSystemStorage
 from azure.core.credentials import AzureKeyCredential
 from azure.search.documents.indexes import SearchIndexClient
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+
+
+from langchain_community.document_loaders import PyPDFLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_chroma import Chroma
+from langchain_google_genai import GoogleGenerativeAIEmbeddings,ChatGoogleGenerativeAI
+from langchain.chains import create_retrieval_chain
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_core.prompts import ChatPromptTemplate
 
 response_from = ""
 # Create your views here.
@@ -161,7 +168,9 @@ def RagResponse(request):
     # Return the answer  
     # return Response({'answer': answer}) 
 
-def process_query(query, conv_id, index):
+# for azure search
+
+# def process_query(query, conv_id, index):
     OPENAI_API_BASE = "https://dwspoc.openai.azure.com/"
     OPENAI_API_KEY = settings.OPENAI_API_KEY
     print("api key" + str(OPENAI_API_KEY))
@@ -230,6 +239,42 @@ def process_query(query, conv_id, index):
 
     return result['answer']
 
+
+#for chroma db 
+
+def process_query(query, conv_id, index):
+    vectorstore_dir = f"user_stores/vectorstore_{index}"
+    print(f'checking in {vectorstore_dir}')
+    embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+    vectorstore = Chroma(persist_directory=vectorstore_dir, embedding_function=embeddings)
+
+    # Use the retriever from this vector store
+    retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 10})
+    retrieved_docs = retriever.invoke(query)
+    llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro",temperature=0.3, max_tokens=500)
+
+    system_prompt = (
+    "You are an assistant for question-answering tasks. "
+    "Use the following pieces of retrieved context to answer "
+    "the question. If you don't know the answer, say that you "
+    "don't know. Use three sentences maximum and keep the "
+    "answer concise."
+    "\n\n"
+    "{context}"
+    )
+
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", system_prompt),
+            ("human", "{input}"),
+        ]
+    )
+
+    question_answer_chain = create_stuff_documents_chain(llm, prompt)
+    rag_chain = create_retrieval_chain(retriever, question_answer_chain)
+    response = rag_chain.invoke({"input": "what is the global psh policy?"})
+    print(response["answer"])
+    return response["answer"]
 def find_substring(main_string, substring):  
     # Convert both strings to lower case  
     main_string_lower = main_string.lower()  
@@ -437,34 +482,62 @@ def DocumentUploadView(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 def processDocument(filepath, index_name):
-        OPENAI_API_BASE = "https://dwspoc.openai.azure.com/"
-        OPENAI_API_KEY = settings.OPENAI_API_KEY
-        OPENAI_API_VERSION = "2024-02-15-preview"
-        AZURE_COGNITIVE_SEARCH_SERVICE_NAME = 'enterprisegptaisearch'
-        AZURE_COGNITIVE_SEARCH_INDEX_NAME = index_name
-        vector_store_address= "https://enterprisegptaisearch.search.windows.net"
-        vector_store_password= settings.AZURE_COGNITIVE_SEARCH_API_KEY
+        # By using Azure search
 
-        openai.api_type = "azure"
-        openai.base_url = OPENAI_API_BASE
-        openai.api_key = OPENAI_API_KEY
-        openai.api_version = OPENAI_API_VERSION
+        # OPENAI_API_BASE = "https://dwspoc.openai.azure.com/"
+        # OPENAI_API_KEY = settings.OPENAI_API_KEY
+        # OPENAI_API_VERSION = "2024-02-15-preview"
+        # AZURE_COGNITIVE_SEARCH_SERVICE_NAME = 'enterprisegptaisearch'
+        # AZURE_COGNITIVE_SEARCH_INDEX_NAME = index_name
+        # vector_store_address= "https://enterprisegptaisearch.search.windows.net"
+        # vector_store_password= settings.AZURE_COGNITIVE_SEARCH_API_KEY
 
-        embeddings = AzureOpenAIEmbeddings(
-                        azure_deployment="text-embedding-ada-002",
-                        openai_api_version="2023-05-15",
-                        azure_endpoint=OPENAI_API_BASE,
-                        api_key= OPENAI_API_KEY
-                    )
+        # openai.api_type = "azure"
+        # openai.base_url = OPENAI_API_BASE
+        # openai.api_key = OPENAI_API_KEY
+        # openai.api_version = OPENAI_API_VERSION
+
+        # embeddings = AzureOpenAIEmbeddings(
+        #                 azure_deployment="text-embedding-ada-002",
+        #                 openai_api_version="2023-05-15",
+        #                 azure_endpoint=OPENAI_API_BASE,
+        #                 api_key= OPENAI_API_KEY
+        #             )
         
-        #Connecting to azure cognitive search
-        acs = AzureSearch(azure_search_endpoint=vector_store_address, azure_search_key=vector_store_password, index_name=AZURE_COGNITIVE_SEARCH_INDEX_NAME, embedding_function=embeddings.embed_query)
+        # #Connecting to azure cognitive search
+        # acs = AzureSearch(azure_search_endpoint=vector_store_address, azure_search_key=vector_store_password, index_name=AZURE_COGNITIVE_SEARCH_INDEX_NAME, embedding_function=embeddings.embed_query)
         
+        # loader = PyPDFLoader(filepath)
+        # document = loader.load()
+        # text_splitter = TokenTextSplitter(chunk_size=250, chunk_overlap=20)
+        # docs = text_splitter.split_documents(document)
+        # acs.add_documents(documents=docs)
+        # return 'Document added'
+
+        #By using chroma db
+
+        # Initialize embedding model
+        embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
         loader = PyPDFLoader(filepath)
-        document = loader.load()
-        text_splitter = TokenTextSplitter(chunk_size=250, chunk_overlap=20)
-        docs = text_splitter.split_documents(document)
-        acs.add_documents(documents=docs)
+        data = loader.load()
+
+        # Split the data into chunks
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000)
+        docs = text_splitter.split_documents(data)
+
+        # Create a separate directory for each PDF's vector store
+        vectorstore_dir = f"user_stores/vectorstore_{index_name}"
+        
+        # Create a Chroma vector store for each PDF
+        vectorstore = Chroma.from_documents(
+            documents=docs, 
+            embedding=embeddings,
+            persist_directory=vectorstore_dir
+        )
+
+    
+
+        print(f"Vector store for {filepath} created at {vectorstore_dir}")
         return 'Document added'
 
 
@@ -679,21 +752,51 @@ def deleteUserDoc(request, id):
     #deleting the file path in database
     document.delete()
 
-    #Updating the vector store
-    endpoint = "https://enterprisegptaisearch.search.windows.net"
-    admin_key = settings.AZURE_COGNITIVE_SEARCH_API_KEY  
-    # index_name = 'user-docs'
-    credential = AzureKeyCredential(admin_key)  
-    client = SearchIndexClient(endpoint, AzureKeyCredential(admin_key))
-    print("deleting index " + index_name)
-    client.delete_index(index_name)
+    #For Azure search
 
-    # pre_path = r'RAG\UserDocs\\'
-    # documents = []
-    # pdf_files = [f for f in os.listdir(pre_path) if f.endswith(".pdf")]  
-    # print(pdf_files)
-    # for i in pdf_files:
-    #     processDocument(pre_path+i, index_name)
+    # #Updating the vector store
+    # endpoint = "https://enterprisegptaisearch.search.windows.net"
+    # admin_key = settings.AZURE_COGNITIVE_SEARCH_API_KEY  
+    # # index_name = 'user-docs'
+    # credential = AzureKeyCredential(admin_key)  
+    # client = SearchIndexClient(endpoint, AzureKeyCredential(admin_key))
+    # print("deleting index " + index_name)
+    # client.delete_index(index_name)
+
+    # # for chromadb
+    # import shutil
+
+    # print(f"Deleting index vectorstore_{index_name}")
+    # shutil.rmtree(f"user_stores/vectorstore_{index_name}")
+
+    # import subprocess
+    # import platform
+    # import shutil
+    # import os
+    # system_platform = platform.system()
+    # folder_path = f"user_stores/vectorstore_{index_name}"
+
+    # try:
+    #     if system_platform == "Windows":
+    #         # Use 'rd /s /q' to forcefully delete a folder on Windows
+    #         subprocess.run(['rd', '/s', '/q', folder_path], check=True)
+    #     elif system_platform in ["Linux", "Darwin"]:  # Darwin is for macOS
+    #         # Use 'rm -rf' to forcefully delete a folder on Linux and macOS
+    #         subprocess.run(['rm', '-rf', folder_path], check=True)
+    #     else:
+    #         raise NotImplementedError(f"Unsupported OS: {system_platform}")
+
+    #     print(f"Folder '{folder_path}' has been deleted successfully.")
+    # except subprocess.CalledProcessError as e:
+    #     print(f"Error occurred: {e}")
+    # except FileNotFoundError:
+    #     print(f"Folder '{folder_path}' does not exist.")
+    # except PermissionError:
+    #     print(f"Permission denied: Unable to delete '{folder_path}'.")
+    # except NotImplementedError as e:
+    #     print(e)
+    # except Exception as e:
+    #     print(f"An unexpected error occurred: {e}")
 
     return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -826,6 +929,7 @@ def userDocResponse(request):
         return Response({'error': 'Conversation not found'}, status=404)
     conv_serializer = ConversationSerializer(conversation)
     email_id = conv_serializer.data['email_id']
+    # email_id = "tummuri.hari@lwpcoe.com"
     
      #parsing file name
     # filename = "GlobalPSHPolicy_5bjLLDt.pdf" 
