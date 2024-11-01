@@ -7,7 +7,7 @@ Always Use **main** branch for installation
   1. git clone https://github.com/hari-tummuri1/EGPT-Django.git
   2. git checkout main
   3. Get API keys from gemini (https://aistudio.google.com/apikey), Pinecone (https://app.pinecone.io/)
-  4. create .env file in EnterpriseGPT folder and add apiKeys with below variable names GOOGLE_API_KEY, PINECONE_API_KEY
+  4. Create .env file in EnterpriseGPT folder and add API Keys with variable names GOOGLE_API_KEY, PINECONE_API_KEY respectively.
 
 **Creating Python Virtual environment**
   1. Install Python 3.11 if you haven't already. You can download it from [Python's official website.](https://www.python.org/downloads/)
