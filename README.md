@@ -10,8 +10,8 @@ Always Use **main** branch for installation
   1. Install Python 3.11 if you haven't already. You can download it from [Python's official website.](https://www.python.org/downloads/)
   2. **Create the virtual environment**: python -m venv myenv
   3. **Activate the environment:**
-       1. On Windows:  myenv\Scripts\activate
-       2. On macOS/Linux: source myenv/bin/activate
+       1. **On Windows:**  myenv\Scripts\activate
+       2. **On macOS/Linux:** source myenv/bin/activate
   4. **Verify the Python version:**  python --version (It should show Python 3.11.x.)
 
 **Commands to run the server**
