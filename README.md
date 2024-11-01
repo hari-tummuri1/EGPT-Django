@@ -20,8 +20,11 @@ Always Use **main** branch for installation
 **Commands to run the server**
   Open 2 terminals
   First Terminal
-    1. pip install -r reequirements.txt
-    2. python manage.py runserver
+   1. pip install -r reequirements.txt
+   2. python manage.py runserver
+      
   Second Terminal
     1. ngrok config add-authtoken 2d8t3Bfhtrpwbwhew7JQIT62wmk_7ZwyHUBSoYChbhnb18RHh
     2. ngrok http --domain informed-hardly-oyster.ngrok-free.app 8000
+
+
